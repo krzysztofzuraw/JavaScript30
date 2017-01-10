@@ -7,30 +7,48 @@ const toggle = player.querySelector('.toggle');
 const skipButtons = player.querySelectorAll('[data-skip]');
 const ranges = player.querySelectorAll('.player__slider');
 
-/* Build our functions */
-function tooglePlay(){
-    const method = video.paused ? 'play' : 'pause';
-    video[method]();
-    //if(video.paused){
-    //	video.play();
-    //} else {
-    //	video.pause();
-    //}
+video.addEventListener('click', togglePlay);
+toggle.addEventListener('click', togglePlay);
+
+function togglePlay() {
+  const method = video.paused ? 'play' : 'pause';
+  video[method]();
 }
 
-function updateButton() {
-    const icon = this.paused ? '►' : '❚❚'
-    toggle.textContent = icon;
-    console.log('Update the button');
-}
-
-function skip() {
-    console.log(this.dataset);
-}
-/* Hook up the event listeners */
-video.addEventListener('click', tooglePlay);
 video.addEventListener('play', updateButton);
 video.addEventListener('pause', updateButton);
 
-toggle.addEventListener('click', tooglePlay);
+function updateButton() {
+  const icon = this.paused ? '►' : '❚ ❚';
+  toggle.textContent = icon;
+}
+
+video.addEventListener('timeupdate', handleProgress);
+
+function handleProgress() {
+  const percent = (video.currentTime / video.duration) * 100;
+  progressBar.style.flexBasis = `${percent}%`;
+}
+
+ranges.forEach(range => range.addEventListener('change', handleRangeUpdate));
+ranges.forEach(range => range.addEventListener('mousemove', handleRangeUpdate));
+
+function handleRangeUpdate() {
+  video[this.name] = this.value;
+}
 skipButtons.forEach(button => button.addEventListener('click', skip));
+
+function skip() {
+ video.currentTime += parseFloat(this.dataset.skip);
+}
+
+let mousedown = false;
+progress.addEventListener('click', scrub);
+progress.addEventListener('mousemove', (e) => mousedown && scrub(e));
+progress.addEventListener('mousedown', () => mousedown = true);
+progress.addEventListener('mouseup', () => mousedown = false);
+
+function scrub(e) {
+  const scrubTime = (e.offsetX / progress.offsetWidth) * video.duration;
+  video.currentTime = scrubTime;
+}

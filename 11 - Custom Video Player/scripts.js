@@ -41,7 +41,6 @@ skipButtons.forEach(button => button.addEventListener('click', skip));
 function skip() {
  video.currentTime += parseFloat(this.dataset.skip);
 }
-
 let mousedown = false;
 progress.addEventListener('click', scrub);
 progress.addEventListener('mousemove', (e) => mousedown && scrub(e));
